@@ -33,18 +33,18 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   // Branding
-  name: "Nazwa Firmy Eventowej",
-  description: "Organizujemy niezapomniane wydarzenia",
+  name: "JDT Relaks",
+  description: "Koncerty relaksacyjne",
   url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
   logo: "/images/logo.png",
   ogImage: "/images/og-default.jpg",
 
   // Dane organizatora
   organizer: {
-    name: "Jan Kowalski",
-    email: "kontakt@example.com",
-    phone: "+48 123 456 789",
-    address: "ul. Przykładowa 1, Warszawa",
+    name: "Justyna Drozd-Tietianiec",
+    email: "justy78@gmail.com",
+    phone: "+48 502 385 310",
+    address: "",
   },
 
   // Social media
@@ -58,13 +58,13 @@ export const siteConfig: SiteConfig = {
     links: [
       { label: "Polityka prywatności", href: "/polityka-prywatnosci" },
     ],
-    copyright: "© 2026 Nazwa Firmy. Wszelkie prawa zastrzeżone.",
+    copyright: "© 2026 JDT Relaks. Wszelkie prawa zastrzeżone.",
   },
 
   // Email
   email: {
-    from: "Wydarzenia <onboarding@resend.dev>",
-    replyTo: "kontakt@example.com",
+    from: "JDT Relaks <onboarding@resend.dev>",
+    replyTo: "justy78@gmail.com",
   },
 
   // Webhook (opcjonalny)
@@ -78,13 +78,13 @@ export const siteConfig: SiteConfig = {
   // FAQ domyślne (nadpisywane per event w bazie)
   faq: [
     {
-      question: "Jak mogę się zapisać na wydarzenie?",
+      question: "Jak mogę się zapisać na koncert?",
       answer:
         "Wypełnij formularz rejestracyjny na stronie wybranego wydarzenia.",
     },
     {
       question: "Czy mogę anulować rejestrację?",
-      answer: "Tak, skontaktuj się z nami mailowo.",
+      answer: "Tak, skontaktuj się z nami mailowo na justy78@gmail.com.",
     },
     {
       question: "Czy otrzymam potwierdzenie?",
