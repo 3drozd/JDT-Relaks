@@ -30,6 +30,12 @@ interface FaqItem {
   answer: string;
 }
 
+interface MediaItemState {
+  type: "image" | "video";
+  url: string;
+  order: number;
+}
+
 interface EventFormProps {
   event?: Event;
 }
@@ -69,6 +75,10 @@ export function EventForm({ event }: EventFormProps) {
   const [faq, setFaq] = useState<FaqItem[]>(
     (event?.faq as FaqItem[]) || []
   );
+  const [media, setMedia] = useState<MediaItemState[]>(
+    (event?.media as MediaItemState[]) || []
+  );
+  const [uploading, setUploading] = useState(false);
 
   function handleNameChange(value: string) {
     setName(value);
@@ -113,6 +123,49 @@ export function EventForm({ event }: EventFormProps) {
     setFaq(updated);
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.message || "Błąd przesyłania.");
+        return;
+      }
+      const { url } = await res.json();
+      const nextOrder = media.length > 0 ? Math.max(...media.map((m) => m.order)) + 1 : 0;
+      setMedia([...media, { type: "image", url, order: nextOrder }]);
+      toast.success("Zdjęcie przesłane.");
+    } catch {
+      toast.error("Błąd przesyłania.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  function addVideoItem() {
+    const nextOrder = media.length > 0 ? Math.max(...media.map((m) => m.order)) + 1 : 0;
+    setMedia([...media, { type: "video", url: "", order: nextOrder }]);
+  }
+
+  function removeMediaItem(index: number) {
+    setMedia(media.filter((_, i) => i !== index));
+  }
+
+  function updateMediaItem(index: number, field: keyof MediaItemState, value: string | number) {
+    const updated = [...media];
+    updated[index] = { ...updated[index], [field]: value };
+    setMedia(updated);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -132,6 +185,7 @@ export function EventForm({ event }: EventFormProps) {
       status,
       schedule: schedule.length > 0 ? schedule : null,
       faq: faq.length > 0 ? faq : null,
+      media: media.length > 0 ? media : null,
     };
 
     try {
@@ -407,6 +461,78 @@ export function EventForm({ event }: EventFormProps) {
           <Button type="button" variant="outline" onClick={addFaqItem}>
             Dodaj pytanie FAQ
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Media (zdjęcia i filmy)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[...media]
+            .sort((a, b) => a.order - b.order)
+            .map((item, index) => {
+              const realIndex = media.indexOf(item);
+              return (
+                <div key={realIndex} className="space-y-2 rounded-lg border p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {item.type === "image" ? "Zdjęcie" : "Film"} (kolejność: {item.order})
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => removeMediaItem(realIndex)}
+                    >
+                      Usuń
+                    </Button>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-[1fr_80px]">
+                    {item.type === "video" ? (
+                      <Input
+                        placeholder="URL filmu YouTube"
+                        value={item.url}
+                        onChange={(e) =>
+                          updateMediaItem(realIndex, "url", e.target.value)
+                        }
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground truncate">
+                        {item.url}
+                      </p>
+                    )}
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Nr"
+                      value={item.order}
+                      onChange={(e) =>
+                        updateMediaItem(realIndex, "order", parseInt(e.target.value, 10) || 0)
+                      }
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" asChild disabled={uploading}>
+              <label className="cursor-pointer">
+                {uploading ? "Przesyłanie..." : "Dodaj zdjęcie"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+            </Button>
+            <Button type="button" variant="outline" onClick={addVideoItem}>
+              Dodaj film YouTube
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

@@ -56,6 +56,16 @@ export const eventSchema = z.object({
     )
     .nullable()
     .optional(),
+  media: z
+    .array(
+      z.object({
+        type: z.enum(["image", "video"]),
+        url: z.string().url(),
+        order: z.number().int().min(0),
+      })
+    )
+    .nullable()
+    .optional(),
 });
 
 export type EventInput = z.infer<typeof eventSchema>;

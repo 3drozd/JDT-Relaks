@@ -14,6 +14,7 @@ export interface Event {
   status: "active" | "ended" | "draft";
   schedule: ScheduleItem[] | null;
   faq: FaqItem[] | null;
+  media: MediaItem[] | null;
   og_image: string | null;
   google_calendar_event_id: string | null;
   created_at: string;
@@ -50,4 +51,10 @@ export interface ScheduleItem {
 export interface FaqItem {
   question: string;
   answer: string;
+}
+
+export interface MediaItem {
+  type: "image" | "video";
+  url: string;
+  order: number;
 }

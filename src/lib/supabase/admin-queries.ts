@@ -40,6 +40,7 @@ export async function createEvent(input: {
   status: string;
   schedule?: { time: string; title: string; description?: string }[] | null;
   faq?: { question: string; answer: string }[] | null;
+  media?: { type: string; url: string; order: number }[] | null;
 }) {
   const supabase = createServerClient();
   const slug = input.slug || slugify(input.name);
@@ -61,6 +62,7 @@ export async function createEvent(input: {
       status: input.status,
       schedule: input.schedule || null,
       faq: input.faq || null,
+      media: input.media || null,
     })
     .select()
     .single();
@@ -86,6 +88,7 @@ export async function updateEvent(
     status?: string;
     schedule?: { time: string; title: string; description?: string }[] | null;
     faq?: { question: string; answer: string }[] | null;
+    media?: { type: string; url: string; order: number }[] | null;
   }
 ) {
   const supabase = createServerClient();
