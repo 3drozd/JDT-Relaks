@@ -14,8 +14,8 @@ export function EventDescription({ event }: EventDescriptionProps) {
 
   return (
     <section className="py-12">
-      <div className="container mx-auto px-4 max-w-5xl">
-        <div className={hasMedia ? "grid gap-8 lg:grid-cols-2" : "max-w-3xl mx-auto"}>
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className={hasMedia ? "grid gap-8 md:grid-cols-2" : "max-w-3xl mx-auto"}>
           {/* Left column: info */}
           <div>
             <div className="flex flex-wrap items-center gap-3 mb-4">
