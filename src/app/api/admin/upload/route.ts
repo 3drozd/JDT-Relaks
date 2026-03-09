@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
   // Check admin auth
-  const cookieStore = await cookies();
-  const adminAuth = cookieStore.get("admin_auth")?.value;
-  if (!adminAuth) {
+  const authenticated = await isAdminAuthenticated();
+  if (!authenticated) {
     return NextResponse.json({ message: "Brak autoryzacji" }, { status: 401 });
   }
 
