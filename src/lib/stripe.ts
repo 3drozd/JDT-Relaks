@@ -2,6 +2,10 @@ import Stripe from "stripe";
 
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
+  console.log("[Stripe] STRIPE_SECRET_KEY defined:", !!secretKey);
+  if (secretKey) {
+    console.log("[Stripe] Key length:", secretKey.length, "| Prefix:", secretKey.slice(0, 7));
+  }
   if (!secretKey) {
     throw new Error(
       "Stripe not configured. Set STRIPE_SECRET_KEY env var."

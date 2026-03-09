@@ -122,7 +122,8 @@ export async function POST(request: NextRequest) {
         message: "Przekierowanie do płatności...",
       });
     } catch (paymentError) {
-      console.error("Stripe session error:", paymentError);
+      console.error("Stripe session error:", paymentError instanceof Error ? paymentError.message : paymentError);
+      console.error("Stripe full error:", JSON.stringify(paymentError, Object.getOwnPropertyNames(paymentError as object)));
       await supabase
         .from("registrations")
         .update({ payment_status: "failed" })
