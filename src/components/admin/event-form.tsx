@@ -499,9 +499,16 @@ export function EventForm({ event }: EventFormProps) {
                         }
                       />
                     ) : (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {item.url}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.url}
+                          alt=""
+                          className="h-16 w-24 rounded object-cover border"
+                        />
+                        <p className="text-sm text-muted-foreground truncate flex-1">
+                          {item.url.split("/").pop()}
+                        </p>
+                      </div>
                     )}
                     <Input
                       type="number"
