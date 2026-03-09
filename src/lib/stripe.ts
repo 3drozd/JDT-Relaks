@@ -1,11 +1,13 @@
 import Stripe from "stripe";
 
+// Dynamic env access prevents build-time inlining by bundler
+function getEnv(name: string): string | undefined {
+  return process.env[name];
+}
+
 function getStripe() {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = getEnv("STRIPE_SECRET_KEY");
   console.log("[Stripe] STRIPE_SECRET_KEY defined:", !!secretKey);
-  if (secretKey) {
-    console.log("[Stripe] Key length:", secretKey.length, "| Prefix:", secretKey.slice(0, 7));
-  }
   if (!secretKey) {
     throw new Error(
       "Stripe not configured. Set STRIPE_SECRET_KEY env var."
@@ -60,7 +62,7 @@ export async function constructWebhookEvent(
   signature: string
 ): Promise<Stripe.Event> {
   const stripe = getStripe();
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const endpointSecret = getEnv("STRIPE_WEBHOOK_SECRET");
   if (!endpointSecret) {
     throw new Error("STRIPE_WEBHOOK_SECRET not configured.");
   }
