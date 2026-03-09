@@ -43,7 +43,7 @@ export function EventList({ events }: EventListProps) {
         <h2 className="text-3xl font-bold text-center mb-10">
           Nadchodzące wydarzenia
         </h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin">
           {events.map((event) => {
             const delta = seatsDelta[event.id] || 0;
             const trigger =
@@ -51,12 +51,13 @@ export function EventList({ events }: EventListProps) {
                 ? lastRegistration.timestamp
                 : null;
             return (
-              <EventCard
-                key={event.id}
-                event={event}
-                seatsDelta={delta}
-                registrationTrigger={trigger}
-              />
+              <div key={event.id} className="min-w-[300px] max-w-[350px] shrink-0 snap-start">
+                <EventCard
+                  event={event}
+                  seatsDelta={delta}
+                  registrationTrigger={trigger}
+                />
+              </div>
             );
           })}
         </div>
@@ -84,7 +85,7 @@ function EventCard({
     currentRemaining <= 0;
 
   return (
-    <Card className="flex flex-col transition-shadow hover:shadow-lg">
+    <Card className="flex flex-col h-full transition-shadow hover:shadow-lg">
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           {event.price ? (
