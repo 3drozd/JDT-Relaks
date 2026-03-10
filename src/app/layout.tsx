@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Cormorant_Garamond } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site.config";
 import "./globals.css";
@@ -7,6 +7,13 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-heading",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
@@ -32,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${cormorant.variable} font-sans antialiased`}>
         {children}
         <Toaster position="top-center" richColors />
       </body>
