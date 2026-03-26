@@ -128,7 +128,7 @@ function EventCard({
             )}
           </div>
           <Badge variant={daysUntil <= 3 ? "destructive" : "outline"} className="text-xs">
-            {getDaysLabel(daysUntil)}
+            {getDaysLabel()}
           </Badge>
         </div>
         <div className="flex items-center justify-between">
