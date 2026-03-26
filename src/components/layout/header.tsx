@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { siteConfig } from "@/config/site.config";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+
 
 const navLinks = [
   { label: "Strona główna", href: "/" },
@@ -14,12 +15,44 @@ const navLinks = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (href === "/" && pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      setOpen(false);
+    },
+    [pathname]
+  );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow duration-500"
+      style={{ boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.15)" : "none" }}
+    >
+      <div className="container mx-auto flex h-12 items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold text-primary">
-          {siteConfig.name}
+          <span className="inline-block">JDT</span>
+          <span
+            className="inline-block overflow-hidden transition-all duration-500 ease-out"
+            style={{
+              maxWidth: scrolled ? "8rem" : "0",
+              opacity: scrolled ? 1 : 0,
+            }}
+          >
+            &nbsp;Relaks
+          </span>
         </Link>
 
         {/* Desktop nav */}
@@ -28,6 +61,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
@@ -43,19 +77,20 @@ export function Header() {
               <span className="sr-only">Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[280px]">
-            <nav className="flex flex-col gap-4 mt-8">
+          <SheetContent side="right" className="w-[280px] flex flex-col">
+            <SheetTitle className="sr-only">Menu nawigacji</SheetTitle>
+            <div className="mt-12 flex flex-col items-center gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="text-lg font-medium text-foreground"
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="w-full text-center py-4 text-xl font-medium text-foreground rounded-lg hover:bg-muted transition-colors"
                 >
                   {link.label}
                 </Link>
               ))}
-            </nav>
+            </div>
           </SheetContent>
         </Sheet>
       </div>

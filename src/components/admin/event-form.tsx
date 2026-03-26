@@ -372,6 +372,85 @@ export function EventForm({ event }: EventFormProps) {
 
       <Card>
         <CardHeader>
+          <CardTitle>Media (zdjęcia i filmy)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[...media]
+            .sort((a, b) => a.order - b.order)
+            .map((item, index) => {
+              const realIndex = media.indexOf(item);
+              return (
+                <div key={realIndex} className="space-y-2 rounded-lg border p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {item.type === "image" ? "Zdjęcie" : "Film"} (kolejność: {item.order})
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => removeMediaItem(realIndex)}
+                    >
+                      Usuń
+                    </Button>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-[1fr_80px]">
+                    {item.type === "video" ? (
+                      <Input
+                        placeholder="URL filmu YouTube"
+                        value={item.url}
+                        onChange={(e) =>
+                          updateMediaItem(realIndex, "url", e.target.value)
+                        }
+                      />
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.url}
+                          alt=""
+                          className="h-16 w-24 rounded object-cover border"
+                        />
+                        <p className="text-sm text-muted-foreground truncate flex-1">
+                          {item.url.split("/").pop()}
+                        </p>
+                      </div>
+                    )}
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Nr"
+                      value={item.order}
+                      onChange={(e) =>
+                        updateMediaItem(realIndex, "order", parseInt(e.target.value, 10) || 0)
+                      }
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" asChild disabled={uploading}>
+              <label className="cursor-pointer">
+                {uploading ? "Przesyłanie..." : "Dodaj zdjęcie"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+            </Button>
+            <Button type="button" variant="outline" onClick={addVideoItem}>
+              Dodaj film YouTube
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Harmonogram</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -461,85 +540,6 @@ export function EventForm({ event }: EventFormProps) {
           <Button type="button" variant="outline" onClick={addFaqItem}>
             Dodaj pytanie FAQ
           </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Media (zdjęcia i filmy)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {[...media]
-            .sort((a, b) => a.order - b.order)
-            .map((item, index) => {
-              const realIndex = media.indexOf(item);
-              return (
-                <div key={realIndex} className="space-y-2 rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {item.type === "image" ? "Zdjęcie" : "Film"} (kolejność: {item.order})
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={() => removeMediaItem(realIndex)}
-                    >
-                      Usuń
-                    </Button>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-[1fr_80px]">
-                    {item.type === "video" ? (
-                      <Input
-                        placeholder="URL filmu YouTube"
-                        value={item.url}
-                        onChange={(e) =>
-                          updateMediaItem(realIndex, "url", e.target.value)
-                        }
-                      />
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={item.url}
-                          alt=""
-                          className="h-16 w-24 rounded object-cover border"
-                        />
-                        <p className="text-sm text-muted-foreground truncate flex-1">
-                          {item.url.split("/").pop()}
-                        </p>
-                      </div>
-                    )}
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="Nr"
-                      value={item.order}
-                      onChange={(e) =>
-                        updateMediaItem(realIndex, "order", parseInt(e.target.value, 10) || 0)
-                      }
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" asChild disabled={uploading}>
-              <label className="cursor-pointer">
-                {uploading ? "Przesyłanie..." : "Dodaj zdjęcie"}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/avif"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                />
-              </label>
-            </Button>
-            <Button type="button" variant="outline" onClick={addVideoItem}>
-              Dodaj film YouTube
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
