@@ -19,17 +19,27 @@ export function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const container = document.querySelector("[data-scroll-container]");
+    const target = container || window;
+    const onScroll = () => {
+      const scrollY = container ? container.scrollTop : window.scrollY;
+      setScrolled(scrollY > 50);
+    };
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    target.addEventListener("scroll", onScroll, { passive: true });
+    return () => target.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       if (href === "/" && pathname === "/") {
         e.preventDefault();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        const container = document.querySelector("[data-scroll-container]");
+        if (container) {
+          container.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
       setOpen(false);
     },

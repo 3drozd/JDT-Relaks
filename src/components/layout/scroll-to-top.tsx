@@ -11,7 +11,12 @@ export function ScrollToTop() {
   }, []);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const container = document.querySelector("[data-scroll-container]");
+    if (container) {
+      container.scrollTo(0, 0);
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [pathname]);
 
   return null;

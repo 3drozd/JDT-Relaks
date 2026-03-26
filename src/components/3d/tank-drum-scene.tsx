@@ -133,38 +133,19 @@ function Ripple({ position, normal, onDone }: { position: THREE.Vector3; normal:
   );
 }
 
-// ── Glow manager (animate emissive back to 0) ───────────────────────
+// ── Glow (animate emissive back to 0) ────────────────────────────────
 
 interface GlowEntry {
   mesh: THREE.Mesh;
   progress: number;
 }
 
-function GlowManager() {
-  const glowingRef = useRef<GlowEntry[]>([]);
-
-  useFrame((_, delta) => {
-    for (let i = glowingRef.current.length - 1; i >= 0; i--) {
-      const entry = glowingRef.current[i];
-      entry.progress += delta * 3;
-      const mat = entry.mesh.material as THREE.MeshStandardMaterial;
-      if (mat.emissiveIntensity !== undefined) {
-        mat.emissiveIntensity = Math.max(0, 1.5 * (1 - entry.progress));
-      }
-      if (entry.progress >= 1) {
-        mat.emissiveIntensity = 0;
-        glowingRef.current.splice(i, 1);
-      }
-    }
-  });
-
-  return null;
-}
-
-// Expose glow trigger via module-scope ref
 const glowQueue: THREE.Mesh[] = [];
 function useGlowTrigger() {
   const glowingRef = useRef<GlowEntry[]>([]);
+
+  // Clear stale queue entries on unmount
+  useEffect(() => () => { glowQueue.length = 0; }, []);
 
   useFrame((_, delta) => {
     // Process queue
@@ -271,10 +252,14 @@ function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Me
   }, []);
 
   const groupRef = useRef<THREE.Group>(null);
+  const scrollContainerRef = useRef<Element | null>(null);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const scrollY = window.scrollY;
+    if (!scrollContainerRef.current) {
+      scrollContainerRef.current = document.querySelector("[data-scroll-container]");
+    }
+    const scrollY = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : window.scrollY;
     const lerpSpeed = 3 * delta;
     const targetX = playMode ? sceneParams.playRotX : sceneParams.rotX;
     const targetZ = playMode ? sceneParams.playRotZ : sceneParams.rotZ;

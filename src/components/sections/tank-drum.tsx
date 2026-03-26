@@ -64,17 +64,6 @@ export function TankDrum() {
           }`}
         >
 
-          {/* Hint — below model on mobile, above on desktop */}
-          <div
-            className={`absolute left-0 w-full z-10 text-center transition-opacity duration-500 -bottom-6 md:bottom-auto md:top-0 md:left-[19%] md:w-[62%] ${
-              playMode ? "opacity-0 pointer-events-none" : "opacity-100"
-            }`}
-          >
-            <span className="inline-flex items-center gap-2 text-base text-white/50 tracking-wide font-medium">
-              Kliknij na Tank Drum aby zagrać
-            </span>
-          </div>
-
           <TankDrumViewer onKeyClick={handleKeyClick} playMode={playMode} />
 
           {/* Note display in play mode */}

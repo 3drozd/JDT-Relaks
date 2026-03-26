@@ -5,13 +5,6 @@ export async function getActiveEvents(): Promise<EventWithSeats[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = createServerClient();
-  // Auto-end past events
-  await supabase
-    .from("events")
-    .update({ status: "ended" })
-    .eq("status", "active")
-    .lt("date", new Date().toISOString());
-
   const { data, error } = await supabase
     .from("events_with_seats")
     .select("*")

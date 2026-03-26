@@ -2,7 +2,6 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { PageTransition } from "@/components/layout/page-transition";
-import { FullpageScroll } from "@/components/layout/fullpage-scroll";
 import { DevPanelLoader } from "@/components/dev/dev-panel-loader";
 
 export default function PublicLayout({
@@ -11,11 +10,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="h-svh overflow-y-auto snap-y snap-mandatory" data-scroll-container>
       <ScrollToTop />
-      <FullpageScroll />
       <Header />
-      <main className="flex-1">
+      <main>
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer />

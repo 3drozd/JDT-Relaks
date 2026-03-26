@@ -128,6 +128,9 @@
   h1, h2, h3 {
     font-family: var(--font-heading), serif;
   }
+  [data-section] {
+    scroll-snap-align: start;
+  }
 }
 
 .scrollbar-thin {

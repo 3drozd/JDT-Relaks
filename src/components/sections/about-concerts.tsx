@@ -54,18 +54,6 @@ export function AboutConcerts() {
                 <div className="w-full aspect-video rounded-2xl bg-primary-foreground/5 border border-primary-foreground/10 flex items-center justify-center">
                   <span className="text-sm text-primary-foreground/30">Video</span>
                 </div>
-                <a
-                  href="#wydarzenia"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById("wydarzenia")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="liquid-glass px-8 py-3 rounded-full flex items-center gap-3 transition-all duration-300 hover:scale-105"
-                  aria-label="Posłuchaj"
-                >
-                  <Music className="h-5 w-5 text-primary-foreground" />
-                  <span className="font-heading text-sm text-primary-foreground">Posłuchaj</span>
-                </a>
               </div>
             </AnimateOnScroll>
           </div>
