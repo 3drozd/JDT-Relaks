@@ -10,7 +10,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-svh overflow-y-auto snap-y snap-mandatory" data-scroll-container>
+    <div className="h-svh overflow-y-auto" data-scroll-container>
       <ScrollToTop />
       <Header />
       <main>

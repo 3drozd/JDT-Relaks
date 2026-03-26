@@ -128,7 +128,12 @@
   h1, h2, h3 {
     font-family: var(--font-heading), serif;
   }
-  [data-section] {
+  /* Scroll snap only on pages that contain data-section elements */
+  [data-scroll-container]:has([data-section]) {
+    scroll-snap-type: y mandatory;
+  }
+  [data-section],
+  [data-scroll-container]:has([data-section]) [data-snap] {
     scroll-snap-align: start;
   }
 }
