@@ -58,3 +58,41 @@ export interface MediaItem {
   url: string;
   order: number;
 }
+
+export interface AccountingSale {
+  id: string;
+  date: string;
+  description: string;
+  client_name: string;
+  client_email: string | null;
+  amount_grosz: number;
+  registration_id: string | null;
+  created_at: string;
+}
+
+export interface StripeSale {
+  id: string;
+  date: string;
+  description: string;
+  client_name: string;
+  client_email: string;
+  amount_grosz: number;
+  source: "stripe";
+}
+
+export interface AccountingExpense {
+  id: string;
+  date: string;
+  description: string;
+  amount_grosz: number;
+  receipt_url: string | null;
+  created_at: string;
+}
+
+export interface AccountingSummary {
+  quarter: number;
+  year: number;
+  income_grosz: number;
+  limit_grosz: number;
+  monthly: { month: number; income_grosz: number; expenses_grosz: number }[];
+}

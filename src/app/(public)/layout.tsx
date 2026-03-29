@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { PageTransition } from "@/components/layout/page-transition";
 import { DevPanelLoader } from "@/components/dev/dev-panel-loader";
+import { AboutUs } from "@/components/sections/about-us";
 
 export default function PublicLayout({
   children,
@@ -16,6 +17,7 @@ export default function PublicLayout({
       <main>
         <PageTransition>{children}</PageTransition>
       </main>
+      <AboutUs />
       <Footer />
       <DevPanelLoader />
     </div>

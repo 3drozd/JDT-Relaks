@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { TankDrumScene } from "@/components/3d/tank-drum-scene";
 
-export function TankDrumViewer({ onKeyClick, playMode }: { onKeyClick?: (note: string) => void; playMode?: boolean } = {}) {
+export function TankDrumViewer({ onKeyClick, onModelClick, playMode }: { onKeyClick?: (note: string) => void; onModelClick?: () => void; playMode?: boolean } = {}) {
   return (
     <div className="w-full h-full">
       <Suspense
@@ -15,7 +15,7 @@ export function TankDrumViewer({ onKeyClick, playMode }: { onKeyClick?: (note: s
           </div>
         }
       >
-        <TankDrumScene onKeyClick={onKeyClick} playMode={playMode} />
+        <TankDrumScene onKeyClick={onKeyClick} onModelClick={onModelClick} playMode={playMode} />
       </Suspense>
     </div>
   );

@@ -40,6 +40,15 @@ export function Header() {
         } else {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
+      } else if (href === "#kontakt") {
+        e.preventDefault();
+        const container = document.querySelector("[data-scroll-container]");
+        const target = document.getElementById("kontakt");
+        if (container && target) {
+          container.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+        } else {
+          target?.scrollIntoView({ behavior: "smooth" });
+        }
       }
       setOpen(false);
     },
@@ -48,14 +57,14 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow duration-500"
-      style={{ boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.15)" : "none" }}
+      className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow duration-500"
+      style={{ boxShadow: "0 8px 30px 4px rgba(255,255,255,0.15), 0 2px 12px rgba(255,255,255,0.1)" }}
     >
       <div className="container mx-auto flex h-12 items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-primary">
-          <span className="inline-block">JDT</span>
+        <Link href="/" className="flex items-baseline text-xl font-bold text-primary">
+          <span>JDT</span>
           <span
-            className="inline-block overflow-hidden transition-all duration-500 ease-out"
+            className="inline-block overflow-hidden text-xl font-normal text-primary/50 transition-all duration-500 ease-out"
             style={{
               maxWidth: scrolled ? "8rem" : "0",
               opacity: scrolled ? 1 : 0,

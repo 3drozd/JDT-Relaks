@@ -12,6 +12,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground">
               {siteConfig.description}
             </p>
+            <p className="text-sm text-muted-foreground mt-1">Tank Drum</p>
           </div>
 
           {/* Kontakt */}

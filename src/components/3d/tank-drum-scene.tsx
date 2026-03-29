@@ -22,14 +22,29 @@ const sceneParams = {
   // Point light (blue from below)
   ptX: 0, ptY: -3, ptZ: 2,
   ptIntensity: 4, ptColor: "#4488ff", ptDistance: 10,
+  // Front light (play mode only)
+  frontX: 0, frontY: 1, frontZ: 2,
+  frontIntensity: 4, frontColor: "#b09969", frontDistance: 8,
   // Model rotation
   rotBaseY: 0.4, rotX: 0.3, rotZ: -0.15, scrollMul: 0.002,
   // Play mode rotation
-  playRotX: 0.75, playRotZ: 0, playScrollMul: 0,
+  playRotX: 0.75, playRotZ: 0, playScrollMul: 0, playRotBaseY: 1.57,
 };
 
+const AVAILABLE_NOTES = new Set(["A", "C1", "C", "D", "E", "F", "G", "H"]);
+
+// Module-level queue for auto-play notes (filled from outside, consumed in useFrame)
+const autoPlayQueue: string[] = [];
+export function queueAutoPlayNote(note: string) {
+  autoPlayQueue.push(note);
+}
+
 function getNoteLetter(meshName: string): string {
-  return meshName.replace("Key_", "").replace(/\d+$/, "");
+  const full = meshName.replace("Key_", "");
+  if (AVAILABLE_NOTES.has(full)) return full;
+  // Strip trailing digits (mesh index) and retry
+  const stripped = full.replace(/\d+$/, "");
+  return AVAILABLE_NOTES.has(stripped) ? stripped : stripped;
 }
 
 // ── Camera updater ──────────────────────────────────────────────────
@@ -48,12 +63,14 @@ function CameraUpdater() {
 
 // ── Lights (read from sceneParams every frame) ──────────────────────
 
-function SceneLights() {
+function SceneLights({ playMode }: { playMode?: boolean }) {
   const ambientRef = useRef<THREE.AmbientLight>(null);
   const spotRef = useRef<THREE.SpotLight>(null);
   const spotTargetRef = useRef<THREE.Object3D>(null);
   const dirRef = useRef<THREE.DirectionalLight>(null);
   const ptRef = useRef<THREE.PointLight>(null);
+  const frontRef = useRef<THREE.PointLight>(null);
+  const frontIntensityCurrent = useRef(0);
 
   useEffect(() => {
     if (spotRef.current && spotTargetRef.current) {
@@ -61,7 +78,7 @@ function SceneLights() {
     }
   }, []);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (ambientRef.current) {
       ambientRef.current.intensity = sceneParams.ambientIntensity;
     }
@@ -83,6 +100,14 @@ function SceneLights() {
       ptRef.current.color.set(sceneParams.ptColor);
       ptRef.current.distance = sceneParams.ptDistance;
     }
+    if (frontRef.current) {
+      const target = playMode ? sceneParams.frontIntensity : 0;
+      frontIntensityCurrent.current += (target - frontIntensityCurrent.current) * Math.min(1, delta * 3);
+      frontRef.current.position.set(sceneParams.frontX, sceneParams.frontY, sceneParams.frontZ);
+      frontRef.current.intensity = frontIntensityCurrent.current;
+      frontRef.current.color.set(sceneParams.frontColor);
+      frontRef.current.distance = sceneParams.frontDistance;
+    }
   });
 
   return (
@@ -92,6 +117,7 @@ function SceneLights() {
       <object3D ref={spotTargetRef} position={[0, 0, 0]} />
       <directionalLight ref={dirRef} />
       <pointLight ref={ptRef} />
+      <pointLight ref={frontRef} intensity={0} />
     </>
   );
 }
@@ -181,7 +207,7 @@ function GlowAnimator() {
 
 // ── Drum model ──────────────────────────────────────────────────────
 
-function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Mesh | null) => void; onKeyClick?: (note: string) => void; playMode?: boolean }) {
+function DrumModel({ onHover, onKeyClick, onModelClick, playMode }: { onHover: (mesh: THREE.Mesh | null) => void; onKeyClick?: (note: string) => void; onModelClick?: () => void; playMode?: boolean }) {
   const { scene } = useGLTF("/models/TankDrumJDT.glb");
   const clonedRef = useRef(false);
   const [hoveredKey, setHoveredKey] = useState<{
@@ -199,6 +225,12 @@ function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Me
         child.geometry.computeVertexNormals();
         if (child.material) {
           child.material = child.material.clone();
+        }
+        if (isKey(child.name)) {
+          const note = getNoteLetter(child.name);
+          if (!meshByNoteRef.current.has(note)) {
+            meshByNoteRef.current.set(note, child);
+          }
         }
       }
     });
@@ -232,7 +264,16 @@ function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Me
 
   const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
+
+    // Any click on the model triggers play mode
+    onModelClick?.();
+
     if (!isKey(e.object.name)) return;
+
+    // Play sound
+    const note = getNoteLetter(e.object.name);
+    const audio = new Audio(`/sounds/${note}_key.mp3`);
+    audio.play().catch(() => {});
 
     // Glow pulse
     glowQueue.push(e.object as THREE.Mesh);
@@ -244,17 +285,27 @@ function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Me
     }
 
     // Callback
-    onKeyClick?.(getNoteLetter(e.object.name));
-  }, [onKeyClick]);
+    onKeyClick?.(note);
+  }, [onKeyClick, onModelClick]);
 
   const removeRipple = useCallback((id: number) => {
     setRipples((prev) => prev.filter((r) => r.id !== id));
   }, []);
 
+  const meshByNoteRef = useRef<Map<string, THREE.Mesh>>(new Map());
   const groupRef = useRef<THREE.Group>(null);
   const scrollContainerRef = useRef<Element | null>(null);
 
   useFrame((_, delta) => {
+    // Process auto-play queue
+    while (autoPlayQueue.length > 0) {
+      const note = autoPlayQueue.shift()!;
+      const audio = new Audio(`/sounds/${note}_key.mp3`);
+      audio.play().catch(() => {});
+      const mesh = meshByNoteRef.current.get(note);
+      if (mesh) glowQueue.push(mesh);
+    }
+
     if (!groupRef.current) return;
     if (!scrollContainerRef.current) {
       scrollContainerRef.current = document.querySelector("[data-scroll-container]");
@@ -265,7 +316,8 @@ function DrumModel({ onHover, onKeyClick, playMode }: { onHover: (mesh: THREE.Me
     const targetZ = playMode ? sceneParams.playRotZ : sceneParams.rotZ;
     const scrollMul = playMode ? sceneParams.playScrollMul : sceneParams.scrollMul;
 
-    groupRef.current.rotation.y += (sceneParams.rotBaseY + scrollY * scrollMul - groupRef.current.rotation.y) * lerpSpeed;
+    const targetY = playMode ? sceneParams.playRotBaseY : sceneParams.rotBaseY + scrollY * scrollMul;
+    groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * lerpSpeed;
     groupRef.current.rotation.x += (targetX - groupRef.current.rotation.x) * lerpSpeed;
     groupRef.current.rotation.z += (targetZ - groupRef.current.rotation.z) * lerpSpeed;
   });
@@ -364,11 +416,21 @@ function DevGui() {
       pt.add(sceneParams, "ptDistance", 0, 30, 1).name("Distance");
       pt.close();
 
+      const front = gui.addFolder("Front Light (Play)");
+      front.add(sceneParams, "frontX", -10, 10, 0.1).name("X");
+      front.add(sceneParams, "frontY", -10, 10, 0.1).name("Y");
+      front.add(sceneParams, "frontZ", -10, 10, 0.1).name("Z");
+      front.add(sceneParams, "frontIntensity", 0, 20, 0.5).name("Intensity");
+      front.addColor(sceneParams, "frontColor").name("Color");
+      front.add(sceneParams, "frontDistance", 0, 30, 1).name("Distance");
+      front.close();
+
       const rot = gui.addFolder("Model Rotation");
       rot.add(sceneParams, "rotBaseY", -3.14, 3.14, 0.01).name("Base Y");
       rot.add(sceneParams, "rotX", -3.14, 3.14, 0.01).name("X");
       rot.add(sceneParams, "rotZ", -3.14, 3.14, 0.01).name("Z");
       rot.add(sceneParams, "scrollMul", 0, 0.01, 0.0005).name("Scroll Mul");
+      rot.add(sceneParams, "playRotBaseY", -3.14, 3.14, 0.01).name("Play Base Y");
       rot.close();
 
       // Copy button
@@ -410,7 +472,7 @@ function DevGui() {
 
 // ── Main scene ──────────────────────────────────────────────────────
 
-export function TankDrumScene({ onKeyClick, playMode }: { onKeyClick?: (note: string) => void; playMode?: boolean } = {}) {
+export function TankDrumScene({ onKeyClick, onModelClick, playMode }: { onKeyClick?: (note: string) => void; onModelClick?: () => void; playMode?: boolean } = {}) {
   const [hovered, setHovered] = useState<THREE.Mesh | null>(null);
 
   return (
@@ -421,11 +483,11 @@ export function TankDrumScene({ onKeyClick, playMode }: { onKeyClick?: (note: st
       style={{ background: "transparent", marginTop: 2 }}
     >
       <CameraUpdater />
-      <SceneLights />
+      <SceneLights playMode={playMode} />
       <GlowAnimator />
       {process.env.NODE_ENV === "development" && <DevGui />}
       <Suspense fallback={null}>
-        <DrumModel onHover={setHovered} onKeyClick={onKeyClick} playMode={playMode} />
+        <DrumModel onHover={setHovered} onKeyClick={onKeyClick} onModelClick={onModelClick} playMode={playMode} />
       </Suspense>
       <EffectComposer autoClear={false}>
         <Outline
