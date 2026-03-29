@@ -58,7 +58,7 @@ export const siteConfig: SiteConfig = {
     links: [
       { label: "Polityka prywatności", href: "/polityka-prywatnosci" },
     ],
-    copyright: "© 2026 JDT Relaks. Wszelkie prawa zastrzeżone.",
+    copyright: "© 2026 JDT Relaks.",
   },
 
   // Email
