@@ -115,7 +115,7 @@ export function GlowCard({ children, className = "" }: GlowCardProps) {
         backgroundPosition: "50% 50%",
         backgroundAttachment: "fixed",
         border: "var(--border-size) solid var(--backup-border)",
-        touchAction: "none",
+        touchAction: "pan-y",
         borderRadius: "calc(var(--radius) * 1px)",
       } as React.CSSProperties}
     >
