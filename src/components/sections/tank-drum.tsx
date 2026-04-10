@@ -311,10 +311,9 @@ const handleKeyClick = useCallback((note: string) => {
       {/* === Detail view === */}
       <div
         data-detail-view
-        className={`absolute inset-0 z-20 pt-20 pb-8 overflow-y-auto scrollbar-none transition-opacity duration-700 ${
+        className={`fixed inset-0 z-[200] pt-20 pb-8 overflow-y-auto scrollbar-none transition-opacity duration-700 bg-[oklch(0.05_0.04_260)]  ${
           detailMode ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
-        style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
       >
         <div className="container mx-auto px-4">
           <p className="text-sm font-medium tracking-widest uppercase text-[#D4A843] text-center mb-4">
