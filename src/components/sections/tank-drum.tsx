@@ -382,7 +382,7 @@ const handleKeyClick = useCallback((note: string) => {
       </div>
 
       {/* Play mode controls — absolute within section so they scroll away with it */}
-      <div className={`absolute bottom-8 md:bottom-16 inset-x-0 z-50 flex flex-col items-center gap-8 px-4 transition-opacity duration-500 ${playMode ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`absolute bottom-24 md:bottom-16 inset-x-0 z-50 flex flex-col items-center gap-8 px-4 transition-opacity duration-500 ${playMode ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         {/* Song selector — desktop only (mobile is placed under model) */}
         <div className="hidden md:flex gap-2 flex-wrap justify-center">
           {SONGS.map(song => {
