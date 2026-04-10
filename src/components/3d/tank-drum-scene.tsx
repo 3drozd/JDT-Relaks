@@ -474,12 +474,13 @@ function DevGui() {
 
 export function TankDrumScene({ onKeyClick, onModelClick, playMode }: { onKeyClick?: (note: string) => void; onModelClick?: () => void; playMode?: boolean } = {}) {
   const [hovered, setHovered] = useState<THREE.Mesh | null>(null);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <Canvas
-      dpr={[1, 1.5]}
+      dpr={isMobile ? [1, 1] : [1, 1.5]}
       camera={{ position: [0, 2, 4], fov: 45 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{ antialias: !isMobile, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent", marginTop: 2 }}
     >
       <CameraUpdater />

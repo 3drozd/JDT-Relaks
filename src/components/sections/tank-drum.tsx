@@ -9,6 +9,14 @@ import { queueAutoPlayNote } from "@/components/3d/tank-drum-scene";
 
 const ShaderBackground = dynamic(() => import("@/components/ui/shader-background"), { ssr: false });
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    setMobile(window.innerWidth < 768);
+  }, []);
+  return mobile;
+}
+
 // ── Demo songs ───────────────────────────────────────────────────────
 interface SongNote { note: string; gap: number }
 interface Song { id: string; title: string; notes: SongNote[] }
@@ -113,6 +121,7 @@ const galleryItems = [
 ];
 
 export function TankDrum() {
+  const isMobile = useIsMobile();
   const [playMode, setPlayMode] = useState(false);
   const [detailMode, setDetailMode] = useState(false);
   const [lastNote, setLastNote] = useState<string | null>(null);
@@ -145,7 +154,7 @@ const handleKeyClick = useCallback((note: string) => {
       className="relative min-h-svh flex flex-col pt-20 pb-8 overflow-hidden bg-[oklch(0.05_0.04_260)] text-white"
       data-section
     >
-      <ShaderBackground />
+      {!isMobile && <ShaderBackground />}
       <div
         className={`hidden md:block absolute inset-0 z-[1] pointer-events-none transition-opacity duration-700 ${
           playMode || detailMode ? "opacity-0" : "opacity-100"
@@ -305,6 +314,7 @@ const handleKeyClick = useCallback((note: string) => {
         className={`absolute inset-0 z-20 pt-20 pb-8 overflow-y-auto scrollbar-none transition-opacity duration-700 ${
           detailMode ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
+        style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
       >
         <div className="container mx-auto px-4">
           <p className="text-sm font-medium tracking-widest uppercase text-[#D4A843] text-center mb-4">
