@@ -246,8 +246,14 @@
     #0d47a1 30%
   );
   background-size: 300% 100%;
-  filter: blur(80px);
+  filter: blur(40px);
+  will-change: transform;
   animation: aurora-shift 20s linear infinite;
+}
+
+.aurora-paused::before,
+.aurora-paused::after {
+  animation-play-state: paused;
 }
 
 .aurora-bg::after {

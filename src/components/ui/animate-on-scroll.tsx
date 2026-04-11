@@ -27,6 +27,11 @@ export function AnimateOnScroll({
   className,
 }: AnimateOnScrollProps) {
   const { ref, isInView } = useInView({ threshold: 0.1, once: true });
+  const prefersReduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReduced) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <div

@@ -39,7 +39,7 @@ const ShaderBackground = () => {
     const float offsetSpeed = 1.33 * overallSpeed;
     const float minOffsetSpread = 0.6;
     const float maxOffsetSpread = 2.0;
-    const int linesPerGroup = 16;
+    const int linesPerGroup = 8;
 
     #define drawCircle(pos, radius, coord) smoothstep(radius + gridSmoothWidth, radius, length(coord - (pos)))
     #define drawSmoothLine(pos, halfWidth, t) smoothstep(halfWidth, 0.0, abs(pos - (t)))
@@ -154,8 +154,10 @@ const ShaderBackground = () => {
     resize();
 
     let raf: number;
+    let visible = true;
     const startTime = Date.now();
     const render = () => {
+      if (!visible) return;
       const t = (Date.now() - startTime) / 1000;
       gl.clearColor(0, 0, 0, 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -170,9 +172,16 @@ const ShaderBackground = () => {
     };
     raf = requestAnimationFrame(render);
 
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) raf = requestAnimationFrame(render);
+    }, { threshold: 0 });
+    visibilityObserver.observe(canvas);
+
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
+      visibilityObserver.disconnect();
     };
   }, []);
 

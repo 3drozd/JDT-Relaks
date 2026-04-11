@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { Music, Heart, Leaf } from "lucide-react";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
 
@@ -25,9 +26,26 @@ const features = [
 ];
 
 export function AboutConcerts() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const auroraRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const aurora = auroraRef.current;
+    if (!section || !aurora) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        aurora.classList.toggle("aurora-paused", !entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="relative min-h-svh flex flex-col justify-center py-16 bg-[oklch(0.05_0.04_260)] text-primary-foreground overflow-hidden" data-section>
-      <div className="aurora-bg" aria-hidden="true" />
+    <section ref={sectionRef} className="relative min-h-svh flex flex-col justify-center py-16 bg-[oklch(0.05_0.04_260)] text-primary-foreground overflow-hidden" data-section>
+      <div ref={auroraRef} className="aurora-bg" aria-hidden="true" />
       <div className="aurora-vignette" aria-hidden="true" />
       <div className="relative z-10 container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
