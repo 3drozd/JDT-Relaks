@@ -3,11 +3,29 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
-import { TankDrumViewer } from "@/components/3d/tank-drum-viewer";
 import { GlowCard } from "@/components/ui/glow-card";
-import { queueAutoPlayNote } from "@/components/3d/tank-drum-scene";
+import { queueAutoPlayNote } from "@/components/3d/auto-play-queue";
 
 const ShaderBackground = dynamic(() => import("@/components/ui/shader-background"), { ssr: false });
+const TankDrumViewer = dynamic(
+  () => import("@/components/3d/tank-drum-viewer").then((m) => ({ default: m.TankDrumViewer })),
+  { ssr: false, loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <p className="text-muted-foreground text-sm animate-pulse">Ładowanie modelu 3D...</p>
+    </div>
+  )}
+);
+
+function isWeakDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  const memory = (navigator as { deviceMemory?: number }).deviceMemory;
+  const connection = (navigator as { connection?: { effectiveType?: string } }).connection;
+  return (
+    (memory !== undefined && memory < 4) ||
+    connection?.effectiveType === "2g" ||
+    connection?.effectiveType === "slow-2g"
+  );
+}
 
 function useIsMobile() {
   const [mobile, setMobile] = useState(false);
@@ -122,6 +140,7 @@ const galleryItems = [
 
 export function TankDrum() {
   const isMobile = useIsMobile();
+  const [loadedFull, setLoadedFull] = useState(() => !isWeakDevice());
   const [playMode, setPlayMode] = useState(false);
   const [detailMode, setDetailMode] = useState(false);
   const [lastNote, setLastNote] = useState<string | null>(null);
@@ -193,7 +212,26 @@ const handleKeyClick = useCallback((note: string) => {
           onTouchStart={playMode ? (e) => e.stopPropagation() : undefined}
           onTouchMove={playMode ? (e) => e.stopPropagation() : undefined}
         >
-          <TankDrumViewer onKeyClick={handleKeyClick} onModelClick={handleModelClick} playMode={playMode} />
+          {loadedFull ? (
+            <TankDrumViewer onKeyClick={handleKeyClick} onModelClick={handleModelClick} playMode={playMode} />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-6">
+              <div className="w-40 h-40 rounded-full border border-[#D4A843]/30 flex items-center justify-center"
+                style={{ background: "radial-gradient(circle, oklch(0.12 0.05 260) 0%, oklch(0.07 0.04 260) 100%)" }}>
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="28" stroke="#D4A843" strokeOpacity="0.4" strokeWidth="1.5"/>
+                  <circle cx="32" cy="32" r="18" stroke="#D4A843" strokeOpacity="0.3" strokeWidth="1"/>
+                  <circle cx="32" cy="32" r="8" fill="#D4A843" fillOpacity="0.2"/>
+                </svg>
+              </div>
+              <button
+                onClick={() => setLoadedFull(true)}
+                className="px-6 py-2.5 rounded-full border border-[#D4A843]/60 text-[#D4A843] text-sm hover:bg-[#D4A843]/10 transition-colors"
+              >
+                Załaduj interaktywny model 3D
+              </button>
+            </div>
+          )}
 
           {playMode && lastNote && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none">

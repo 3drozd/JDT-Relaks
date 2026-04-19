@@ -207,6 +207,50 @@
 }
 
 
+/* Shader background CSS replacement (no WebGL) */
+@keyframes shader-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(40px); }
+}
+
+@keyframes shader-pulse {
+  from { opacity: 0.3; transform: scale(0.9); }
+  to   { opacity: 0.8; transform: scale(1.1); }
+}
+
+.shader-bg-css {
+  background: linear-gradient(180deg, oklch(0.05 0.04 260) 0%, oklch(0.08 0.06 270) 100%);
+  overflow: hidden;
+}
+
+.shader-bg-css::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    rgba(212, 168, 67, 0.025) 1px,
+    transparent 2px,
+    transparent 40px
+  );
+  animation: shader-drift 10s linear infinite;
+  will-change: transform;
+}
+
+.shader-bg-css::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(
+    ellipse 60% 40% at 50% 50%,
+    rgba(212, 168, 67, 0.05) 0%,
+    transparent 70%
+  );
+  animation: shader-pulse 7s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
 /* Aurora background */
 @keyframes aurora-shift {
   0%, 100% {

@@ -33,11 +33,8 @@ const sceneParams = {
 
 const AVAILABLE_NOTES = new Set(["A", "C1", "C", "D", "E", "F", "G", "H"]);
 
-// Module-level queue for auto-play notes (filled from outside, consumed in useFrame)
-const autoPlayQueue: string[] = [];
-export function queueAutoPlayNote(note: string) {
-  autoPlayQueue.push(note);
-}
+import { autoPlayQueue } from "./auto-play-queue";
+export { queueAutoPlayNote } from "./auto-play-queue";
 
 function getNoteLetter(meshName: string): string {
   const full = meshName.replace("Key_", "");
