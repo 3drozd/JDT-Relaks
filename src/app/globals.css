@@ -130,7 +130,7 @@
   }
   /* Scroll snap only on pages that contain data-section elements */
   [data-scroll-container]:has([data-section]) {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
   }
   [data-section],
   [data-scroll-container]:has([data-section]) [data-snap] {
