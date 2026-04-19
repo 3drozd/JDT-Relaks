@@ -455,9 +455,6 @@ function DevGui() {
 
 export function TankDrumScene({ onKeyClick, onModelClick, playMode }: { onKeyClick?: (note: string) => void; onModelClick?: () => void; playMode?: boolean } = {}) {
   const [hovered, setHovered] = useState<THREE.Mesh | null>(null);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const hasPostProcessing = !isMobile;
-
   return (
     <Canvas
       dpr={[1, 2]}
@@ -472,18 +469,16 @@ export function TankDrumScene({ onKeyClick, onModelClick, playMode }: { onKeyCli
       <Suspense fallback={null}>
         <DrumModel onHover={setHovered} onKeyClick={onKeyClick} onModelClick={onModelClick} playMode={playMode} />
       </Suspense>
-      {hasPostProcessing && (
-        <EffectComposer autoClear={false}>
-          <Outline
-            selection={hovered ? [hovered] : []}
-            edgeStrength={3}
-            pulseSpeed={0.5}
-            visibleEdgeColor={0xd4a843}
-            hiddenEdgeColor={0x333300}
-            blur
-          />
-        </EffectComposer>
-      )}
+      <EffectComposer autoClear={false}>
+        <Outline
+          selection={hovered ? [hovered] : []}
+          edgeStrength={3}
+          pulseSpeed={0.5}
+          visibleEdgeColor={0xd4a843}
+          hiddenEdgeColor={0x333300}
+          blur
+        />
+      </EffectComposer>
     </Canvas>
   );
 }
