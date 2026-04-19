@@ -6,17 +6,18 @@ import { useState, useCallback, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-
-
-const navLinks = [
-  { label: "Strona główna", href: "/" },
-  { label: "Kontakt", href: "#kontakt" },
-];
+import { useLanguage } from "@/contexts/language-context";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { lang, setLang, t } = useLanguage();
+
+  const navLinks = [
+    { label: t.nav.home, href: "/" },
+    { label: t.nav.contact, href: "#kontakt" },
+  ];
 
   useEffect(() => {
     const container = document.querySelector("[data-scroll-container]");
@@ -86,33 +87,60 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <LangToggle lang={lang} setLang={setLang} />
         </nav>
 
-        {/* Mobile nav */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] flex flex-col">
-            <SheetTitle className="sr-only">Menu nawigacji</SheetTitle>
-            <div className="mt-12 flex flex-col items-center gap-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className="w-full text-center py-4 text-xl font-medium text-foreground rounded-lg hover:bg-muted transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </SheetContent>
-        </Sheet>
+        <div className="flex items-center gap-2 md:hidden">
+          <LangToggle lang={lang} setLang={setLang} />
+          {/* Mobile nav */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] flex flex-col">
+              <SheetTitle className="sr-only">Menu nawigacji</SheetTitle>
+              <div className="mt-12 flex flex-col items-center gap-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className="w-full text-center py-4 text-xl font-medium text-foreground rounded-lg hover:bg-muted transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
+  );
+}
+
+function LangToggle({ lang, setLang }: { lang: string; setLang: (l: "pl" | "en") => void }) {
+  return (
+    <div className="flex items-center rounded-full border border-border overflow-hidden text-xs font-medium">
+      <button
+        onClick={() => setLang("pl")}
+        className={`px-2.5 py-1 transition-colors ${
+          lang === "pl" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        PL
+      </button>
+      <button
+        onClick={() => setLang("en")}
+        className={`px-2.5 py-1 transition-colors ${
+          lang === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        EN
+      </button>
+    </div>
   );
 }

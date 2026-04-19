@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Cormorant_Garamond } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site.config";
+import { LanguageProvider } from "@/contexts/language-context";
 import "./globals.css";
 
 const geist = Geist({
@@ -40,8 +41,10 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body className={`${geist.variable} ${cormorant.variable} font-sans antialiased`}>
-        {children}
-        <Toaster position="top-center" richColors />
+        <LanguageProvider>
+          {children}
+          <Toaster position="top-center" richColors />
+        </LanguageProvider>
       </body>
     </html>
   );

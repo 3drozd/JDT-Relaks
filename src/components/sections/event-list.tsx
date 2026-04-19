@@ -16,6 +16,7 @@ import { RegistrationPulse } from "@/components/ui/registration-pulse";
 import { useRealtimeRegistrations } from "@/hooks/use-realtime-registrations";
 import { formatShortDate } from "@/lib/format";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { useLanguage } from "@/contexts/language-context";
 import type { EventWithSeats } from "@/types";
 
 interface EventListProps {
@@ -24,15 +25,14 @@ interface EventListProps {
 
 export function EventList({ events }: EventListProps) {
   const { lastRegistration, seatsDelta } = useRealtimeRegistrations();
+  const { t } = useLanguage();
 
   if (events.length === 0) {
     return (
       <section id="wydarzenia" className="min-h-svh flex flex-col justify-center py-16" data-section>
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Nadchodzące wydarzenia</h2>
-          <p className="text-muted-foreground">
-            Aktualnie nie ma zaplanowanych wydarzeń. Sprawdź ponownie wkrótce!
-          </p>
+          <h2 className="text-3xl font-bold mb-4">{t.events.heading}</h2>
+          <p className="text-muted-foreground">{t.events.empty}</p>
         </div>
       </section>
     );
@@ -42,9 +42,7 @@ export function EventList({ events }: EventListProps) {
     <section id="wydarzenia" className="min-h-svh flex flex-col justify-center py-16 overflow-hidden" data-section>
       <div className="container mx-auto px-4">
         <AnimateOnScroll variant="fade-in">
-          <h2 className="text-3xl font-bold text-center mb-10">
-            Nadchodzące wydarzenia
-          </h2>
+          <h2 className="text-3xl font-bold text-center mb-10">{t.events.heading}</h2>
         </AnimateOnScroll>
         <AnimateOnScroll variant="fade-in">
           <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin md:scrollbar-normal">
@@ -60,6 +58,7 @@ export function EventList({ events }: EventListProps) {
                     event={event}
                     seatsDelta={delta}
                     registrationTrigger={trigger}
+                    t={t.events}
                   />
                 </div>
               );
@@ -75,10 +74,12 @@ function EventCard({
   event,
   seatsDelta,
   registrationTrigger,
+  t,
 }: {
   event: EventWithSeats;
   seatsDelta: number;
   registrationTrigger: number | null;
+  t: ReturnType<typeof useLanguage>["t"]["events"];
 }) {
   const currentRemaining =
     event.seats_remaining !== null
@@ -98,17 +99,17 @@ function EventCard({
 
     if (diffDays === 0) {
       const diffMs = eventDate.getTime() - now.getTime();
-      if (diffMs <= 0) return "Trwa teraz!";
+      if (diffMs <= 0) return t.now;
       const hours = Math.floor(diffMs / (1000 * 60 * 60));
       const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      if (hours > 0) return `Za ${hours}h ${minutes}min`;
-      return `Za ${minutes} min`;
+      if (hours > 0) return t.inHours(hours, minutes);
+      return t.inMinutes(minutes);
     }
-    if (diffDays === 1) return "Już jutro!";
-    if (diffDays < 7) return `Za ${diffDays} dni`;
-    if (diffDays < 14) return "Za tydzień";
-    if (diffDays < 30) return `Za ${Math.floor(diffDays / 7)} tygodnie`;
-    return `Za ${Math.floor(diffDays / 30)} mies.`;
+    if (diffDays === 1) return t.tomorrow;
+    if (diffDays < 7) return t.inDays(diffDays);
+    if (diffDays < 14) return t.inWeek;
+    if (diffDays < 30) return t.inWeeks(Math.floor(diffDays / 7));
+    return t.inMonths(Math.floor(diffDays / 30));
   }
 
   const now = new Date();
@@ -124,7 +125,7 @@ function EventCard({
             {event.price ? (
               <Badge variant="secondary">{event.price}</Badge>
             ) : (
-              <Badge variant="secondary">Bezpłatne</Badge>
+              <Badge variant="secondary">{t.free}</Badge>
             )}
           </div>
           <Badge variant={daysUntil <= 3 ? "destructive" : "outline"} className="text-xs">
@@ -132,7 +133,7 @@ function EventCard({
           </Badge>
         </div>
         <div className="flex items-center justify-between">
-          {isFull && <Badge variant="destructive">Brak miejsc</Badge>}
+          {isFull && <Badge variant="destructive">{t.full}</Badge>}
         </div>
         <CardTitle className="text-xl">{event.name}</CardTitle>
       </CardHeader>
@@ -143,7 +144,7 @@ function EventCard({
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4 shrink-0" />
-          <span>Rozpoczęcie {new Date(event.date).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}</span>
+          <span>{t.startsAt} {new Date(event.date).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4 shrink-0" />
@@ -156,10 +157,10 @@ function EventCard({
               {currentRemaining !== null ? (
                 <>
                   <AnimatedNumber value={currentRemaining} /> /{" "}
-                  {event.seat_limit} wolnych miejsc
+                  {event.seat_limit} {t.seatsOf}
                 </>
               ) : (
-                `${event.seat_limit} miejsc`
+                `${event.seat_limit} ${t.seats}`
               )}
             </span>
           </div>
@@ -169,7 +170,7 @@ function EventCard({
       <CardFooter>
         <Button asChild className="w-full" disabled={isFull}>
           <Link href={`/events/${event.slug}`}>
-            {isFull ? "Brak miejsc" : "Zapisz się"}
+            {isFull ? t.full : t.register}
           </Link>
         </Button>
       </CardFooter>

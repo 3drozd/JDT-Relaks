@@ -177,16 +177,16 @@ function useGlowTrigger() {
       const mat = mesh.material as THREE.MeshStandardMaterial;
       if (mat.emissive) {
         mat.emissive.set("#D4A843");
-        mat.emissiveIntensity = 1.5;
+        mat.emissiveIntensity = 0;
       }
       glowingRef.current.push({ mesh, progress: 0 });
     }
-    // Animate
+    // Animate — sine curve: fade in → peak → fade out
     for (let i = glowingRef.current.length - 1; i >= 0; i--) {
       const entry = glowingRef.current[i];
-      entry.progress += delta * 3;
+      entry.progress += delta * 0.8;
       const mat = entry.mesh.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = Math.max(0, 1.5 * (1 - entry.progress));
+      mat.emissiveIntensity = 1.5 * Math.sin(Math.min(entry.progress, 1) * Math.PI);
       if (entry.progress >= 1) {
         mat.emissiveIntensity = 0;
         glowingRef.current.splice(i, 1);
@@ -211,8 +211,6 @@ function DrumModel({ onHover, onKeyClick, onModelClick, playMode }: { onHover: (
     note: string;
     position: THREE.Vector3;
   } | null>(null);
-  const [ripples, setRipples] = useState<RippleData[]>([]);
-  const rippleId = useRef(0);
 
   useEffect(() => {
     if (clonedRef.current) return;
@@ -275,19 +273,9 @@ function DrumModel({ onHover, onKeyClick, onModelClick, playMode }: { onHover: (
     // Glow pulse
     glowQueue.push(e.object as THREE.Mesh);
 
-    // Ripple at click point
-    if (e.point && e.face) {
-      const id = ++rippleId.current;
-      setRipples((prev) => [...prev, { id, position: e.point.clone(), normal: e.face!.normal.clone().transformDirection(e.object.matrixWorld).normalize() }]);
-    }
-
     // Callback
     onKeyClick?.(note);
   }, [onKeyClick, onModelClick]);
-
-  const removeRipple = useCallback((id: number) => {
-    setRipples((prev) => prev.filter((r) => r.id !== id));
-  }, []);
 
   const meshByNoteRef = useRef<Map<string, THREE.Mesh>>(new Map());
   const groupRef = useRef<THREE.Group>(null);
@@ -312,7 +300,6 @@ function DrumModel({ onHover, onKeyClick, onModelClick, playMode }: { onHover: (
     const targetX = playMode ? sceneParams.playRotX : sceneParams.rotX;
     const targetZ = playMode ? sceneParams.playRotZ : sceneParams.rotZ;
     const scrollMul = playMode ? sceneParams.playScrollMul : sceneParams.scrollMul;
-
     const targetY = playMode ? sceneParams.playRotBaseY : sceneParams.rotBaseY + scrollY * scrollMul;
     groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * lerpSpeed;
     groupRef.current.rotation.x += (targetX - groupRef.current.rotation.x) * lerpSpeed;
@@ -353,9 +340,6 @@ function DrumModel({ onHover, onKeyClick, onModelClick, playMode }: { onHover: (
             </div>
           </Html>
         )}
-        {ripples.map((r) => (
-          <Ripple key={r.id} position={r.position} normal={r.normal} onDone={() => removeRipple(r.id)} />
-        ))}
       </group>
     </Center>
   );
