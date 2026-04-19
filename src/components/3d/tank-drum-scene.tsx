@@ -460,9 +460,9 @@ export function TankDrumScene({ onKeyClick, onModelClick, playMode }: { onKeyCli
 
   return (
     <Canvas
-      dpr={[1, 1]}
+      dpr={[1, 2]}
       camera={{ position: [0, 2, 4], fov: 45 }}
-      gl={{ antialias: !isMobile, alpha: true, powerPreference: "high-performance" }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent", marginTop: 2 }}
     >
       <CameraUpdater />
